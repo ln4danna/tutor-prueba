@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ lesson.title }}{% endblock %}
+{% block content %}
+<nav class="breadcrumb" aria-label="Ruta">
+  <a href="/courses">Mis cursos</a> <span aria-hidden="true">/</span> <span>{{ lesson.course.title }}</span>
+</nav>
+<div class="lesson-layout">
+  <article class="card lesson" aria-labelledby="lesson-title">
+    <h1 id="lesson-title">{{ lesson.title }}</h1>
+    {# Texto plano con autoescape; los saltos de línea los resuelve CSS (pre-wrap). Nunca |safe. #}
+    <div class="lesson-content" id="lesson-content">{{ lesson.content }}</div>
+  </article>
+  <section class="card chat" id="chat" data-lesson-id="{{ lesson.id }}" aria-labelledby="chat-title">
+    <h2 id="chat-title">Tutor</h2>
+    <p class="muted" id="chat-placeholder">El chat con el tutor estará disponible aquí.</p>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/app.js" defer></script>{% endblock %}

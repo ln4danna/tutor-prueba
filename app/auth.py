@@ -1,7 +1,7 @@
 """Login, logout, cookie de sesión firmada y dependencia get_current_user."""
 import bcrypt
 from fastapi import APIRouter, Depends, Form, Request
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import RedirectResponse
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -9,6 +9,9 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.db import get_db
 from app.models import User
+from app.templating import templates
+
+LOGIN_ERROR = "Email o contraseña incorrectos."
 
 SESSION_COOKIE = "session"
 _serializer = URLSafeTimedSerializer(settings.secret_key, salt="session")
@@ -51,8 +54,14 @@ def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
     return user
 
 
+@router.get("/login")
+def login_page(request: Request):
+    return templates.TemplateResponse(request, "login.html", {})
+
+
 @router.post("/login")
 def login(
+    request: Request,
     email: str = Form(..., max_length=255),
     password: str = Form(..., max_length=255),
     db: Session = Depends(get_db),
@@ -60,7 +69,10 @@ def login(
     user = authenticate(db, email, password)
     if user is None:
         # Mismo mensaje para email inexistente o contraseña incorrecta.
-        return JSONResponse({"detail": "Email o contraseña incorrectos."}, status_code=401)
+        return templates.TemplateResponse(
+            request, "login.html", {"error": LOGIN_ERROR, "email": email}, status_code=401
+        )
+    # Destino fijo (sin parámetro `next`): evita open redirects.
     response = RedirectResponse("/courses", status_code=303)
     response.set_cookie(
         SESSION_COOKIE,

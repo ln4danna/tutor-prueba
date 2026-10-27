@@ -6,7 +6,7 @@ from itsdangerous import TimestampSigner, URLSafeTimedSerializer
 from sqlalchemy import select
 
 from app.config import settings
-from app.models import Course, Enrollment, Message
+from app.models import Course, Enrollment, Lesson, Message
 from tests.conftest import login, user_id
 
 PROTECTED = ["/courses", "/lessons/1", "/lessons/1/messages"]
@@ -63,23 +63,55 @@ def test_login_sets_secure_cookie_flags(client):
 def test_login_failure_uses_generic_message(client, email, password):
     r = client.post("/login", data={"email": email, "password": password})
     assert r.status_code == 401
-    assert r.json()["detail"] == "Email o contraseña incorrectos."
+    assert "Email o contraseña incorrectos." in r.text
 
 
 def test_enrolled_user_sees_course_and_lesson(client):
     login(client, "ana@demo.com")
-    courses = client.get("/courses").json()
-    assert [c["title"] for c in courses] == ["Introducción a las APIs REST"]
+    assert "Introducción a las APIs REST" in client.get("/courses").text
     r = client.get("/lessons/1")
     assert r.status_code == 200
-    assert "POST" in r.json()["content"]
+    assert "POST" in r.text
+    assert 'id="chat"' in r.text
 
 
 def test_unenrolled_user_gets_403(client):
     login(client, "beto@demo.com")
-    assert client.get("/courses").json() == []
+    assert "No tienes cursos asignados" in client.get("/courses").text
     assert client.get("/lessons/1").status_code == 403
     assert client.get("/lessons/1/messages").status_code == 403
+
+
+def test_unenrolled_user_sees_readable_403_page(client):
+    login(client, "beto@demo.com")
+    r = client.get("/lessons/1", headers={"accept": "text/html"})
+    assert r.status_code == 403
+    assert "No tienes acceso a esta lección." in r.text
+    assert 'href="/courses"' in r.text
+
+
+def test_api_403_stays_json(client):
+    login(client, "beto@demo.com")
+    r = client.get("/lessons/1/messages", headers={"accept": "application/json"})
+    assert r.status_code == 403
+    assert r.json() == {"detail": "No tienes acceso a esta lección."}
+
+
+def test_lesson_content_is_escaped(client, db_session):
+    lesson = db_session.get(Lesson, 1)
+    lesson.content = "<script>alert('xss')</script>"
+    db_session.commit()
+    login(client, "ana@demo.com")
+    html = client.get("/lessons/1").text
+    assert "<script>alert" not in html
+    assert "&lt;script&gt;alert" in html
+
+
+def test_security_headers_present(client):
+    r = client.get("/login")
+    assert r.headers["content-security-policy"].startswith("default-src 'self'")
+    assert r.headers["x-content-type-options"] == "nosniff"
+    assert r.headers["x-frame-options"] == "DENY"
 
 
 def test_unknown_lesson_returns_404(client):

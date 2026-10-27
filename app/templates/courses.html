@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Mis cursos{% endblock %}
+{% block content %}
+<h1>Mis cursos</h1>
+{% if courses %}
+  {% for course in courses %}
+  <section class="card course" aria-labelledby="course-{{ course.id }}">
+    <h2 id="course-{{ course.id }}">{{ course.title }}</h2>
+    <p class="muted">{{ course.description }}</p>
+    <ol class="lesson-list">
+      {% for lesson in course.lessons %}
+      <li>
+        <a class="lesson-link" id="lesson-link-{{ lesson.id }}" href="/lessons/{{ lesson.id }}">
+          <span class="lesson-num">{{ loop.index }}</span>
+          <span>{{ lesson.title }}</span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+  {% endfor %}
+{% else %}
+  <section class="card empty-state" id="no-courses">
+    <h2>No tienes cursos asignados</h2>
+    <p class="muted">Cuando te inscriban en un curso, aparecerá aquí.</p>
+  </section>
+{% endif %}
+{% endblock %}

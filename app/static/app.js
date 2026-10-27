@@ -1,1 +1,1 @@
-// voz, chat, estados
+// Chat, voz y estados de la interacción: se implementa en la Fase 5.

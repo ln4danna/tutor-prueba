@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Tutor{% endblock %} · Tutor IA</title>
+  <meta name="description" content="Tutor virtual con IA y voz para tus lecciones.">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Saltar al contenido</a>
+  <header class="topbar">
+    <a class="brand" href="/courses"><span class="brand-mark" aria-hidden="true">✦</span> Tutor IA</a>
+    {% if user %}
+    <div class="topbar-user">
+      <span class="user-name">{{ user.name }}</span>
+      <form method="post" action="/logout">
+        <button type="submit" class="btn btn-ghost" id="logout-button">Cerrar sesión</button>
+      </form>
+    </div>
+    {% endif %}
+  </header>
+  <main id="main" class="container">
+    {% block content %}{% endblock %}
+  </main>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
