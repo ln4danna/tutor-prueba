@@ -1,0 +1,1 @@
+# historial y errores de IA (con mock)

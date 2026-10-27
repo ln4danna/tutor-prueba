@@ -1,0 +1,11 @@
+fastapi>=0.110
+uvicorn[standard]>=0.29
+sqlalchemy>=2.0
+jinja2>=3.1
+python-multipart>=0.0.9   # formularios (login)
+python-dotenv>=1.0        # carga .env
+bcrypt>=4.1               # hash de contraseñas
+itsdangerous>=2.1         # firma de la cookie de sesión
+httpx>=0.27               # llamada HTTP al proveedor de IA (y TestClient)
+pytest>=8.0
+ruff>=0.4
