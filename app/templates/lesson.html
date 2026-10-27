@@ -10,9 +10,44 @@
     {# Texto plano con autoescape; los saltos de línea los resuelve CSS (pre-wrap). Nunca |safe. #}
     <div class="lesson-content" id="lesson-content">{{ lesson.content }}</div>
   </article>
+
   <section class="card chat" id="chat" data-lesson-id="{{ lesson.id }}" aria-labelledby="chat-title">
-    <h2 id="chat-title">Tutor</h2>
-    <p class="muted" id="chat-placeholder">El chat con el tutor estará disponible aquí.</p>
+    <div class="chat-header">
+      <h2 id="chat-title">Tutor</h2>
+      <p class="status" id="chat-status" data-state="idle" role="status" aria-live="polite">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="chat-status-text">Listo</span>
+      </p>
+    </div>
+
+    <ol class="messages" id="chat-messages" aria-label="Conversación con el tutor"></ol>
+
+    <div class="alert alert-error chat-error" id="chat-error" role="alert" hidden>
+      <p id="chat-error-text"></p>
+      <button type="button" class="btn btn-ghost btn-small" id="chat-error-action">Reintentar</button>
+    </div>
+
+    <button type="button" class="btn btn-ghost btn-small" id="stop-speaking" hidden>
+      ■ Detener lectura
+    </button>
+
+    <form class="chat-form" id="chat-form" novalidate>
+      <label for="question">Tu pregunta</label>
+      <textarea id="question" name="question" rows="3" maxlength="1000" required
+                placeholder="Escribe tu pregunta sobre esta lección…"
+                aria-describedby="question-help mic-hint"></textarea>
+      <div class="chat-form-meta">
+        <span class="muted" id="question-help">Enter para enviar · Shift+Enter para nueva línea</span>
+        <span class="muted" id="char-count" aria-live="off">0/1000</span>
+      </div>
+      <div class="chat-actions">
+        <button type="button" class="btn btn-ghost" id="mic-button" aria-pressed="false">
+          <span aria-hidden="true">🎤</span> <span id="mic-label">Hablar</span>
+        </button>
+        <button type="submit" class="btn btn-primary" id="send-button">Enviar</button>
+      </div>
+      <p class="muted mic-hint" id="mic-hint"></p>
+    </form>
   </section>
 </div>
 {% endblock %}
