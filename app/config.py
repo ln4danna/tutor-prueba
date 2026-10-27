@@ -13,7 +13,6 @@ class Settings:
     secret_key: str
     session_max_age_seconds: int
     cookie_secure: bool
-    ai_provider: str
     ai_api_key: str
     ai_model: str
     ai_timeout_seconds: float
@@ -30,10 +29,10 @@ def get_settings() -> Settings:
         session_max_age_seconds=int(os.getenv("SESSION_MAX_AGE_SECONDS", str(8 * 3600))),
         # En localhost sin HTTPS una cookie Secure no se enviaría; en producción debe ser true.
         cookie_secure=os.getenv("COOKIE_SECURE", "false").lower() == "true",
-        ai_provider=os.getenv("AI_PROVIDER", "gemini"),
-        ai_api_key=os.getenv("AI_API_KEY", ""),
-        ai_model=os.getenv("AI_MODEL", "gemini-1.5-flash"),
-        ai_timeout_seconds=float(os.getenv("AI_TIMEOUT_SECONDS", "20")),
+        ai_api_key=os.getenv("AI_API_KEY", "").strip(),
+        # Sin valor por defecto: los nombres de modelo cambian; se define en .env.
+        ai_model=os.getenv("AI_MODEL", "").strip(),
+        ai_timeout_seconds=float(os.getenv("AI_TIMEOUT_SECONDS", "30")),
     )
 
 
