@@ -206,7 +206,7 @@ Todos los tests deben correr sin internet ni API key.
 - [x] **Fase 3: Lecciones.** Lista de cursos, pantalla de lección con contenido, plantillas y estilos base.
 - [x] **Fase 4: Chat con IA.** `ai.py` con el prompt del tutor, endpoint de chat, guardado de historial, endpoint de mensajes, manejo de errores de IA, tests con mock.
 - [x] **Fase 5: Frontend del chat y voz.** `app.js` con estados, entrada por voz, lectura de respuestas, carga del historial, reintentos y manejo de errores.
-- [/] **Fase 6: Calidad.** Revisión de seguridad (checklist de la sección 8), ruff, workflow de CI, tests faltantes.
-- [ ] **Fase 7: Documentación.** README con instrucciones y "Decisiones y límites", y guion de demo.
+- [x] **Fase 6: Calidad.** Revisión de seguridad (checklist de la sección 8), ruff, workflow de CI, tests faltantes.
+- [x] **Fase 7: Documentación.** README con instrucciones y "Decisiones y límites", y guion de demo.
 
 Marca cada fase como completada en este archivo cuando yo lo confirme.
