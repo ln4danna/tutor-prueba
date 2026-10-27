@@ -4,8 +4,9 @@ from datetime import UTC
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import Response
 from pydantic import BaseModel, Field, field_validator
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app import ai
@@ -62,6 +63,22 @@ def list_messages(
         conversation_query(user.id, lesson.id).order_by(Message.created_at, Message.id)
     ).all()
     return [serialize(m) for m in messages]
+
+
+@router.delete("/lessons/{lesson_id}/messages", status_code=204)
+def delete_messages(
+    lesson: Lesson = Depends(get_accessible_lesson),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Response:
+    """Borra SOLO los mensajes del usuario de sesión en esta lección (hard delete).
+
+    Los permisos (401 sin sesión, 403 sin inscripción, 404 sin lección) los
+    gestiona get_accessible_lesson; no se duplica esa lógica aquí.
+    """
+    db.execute(delete(Message).where(Message.user_id == user.id, Message.lesson_id == lesson.id))
+    db.commit()
+    return Response(status_code=204)
 
 
 @router.post("/lessons/{lesson_id}/chat")

@@ -12,25 +12,32 @@
   </article>
 
   <section class="card chat" id="chat" data-lesson-id="{{ lesson.id }}" aria-labelledby="chat-title">
+
+    {# 1. Cabecera: título + estado + botón borrar #}
     <div class="chat-header">
-      <h2 id="chat-title">Tutor</h2>
-      <p class="status" id="chat-status" data-state="idle" role="status" aria-live="polite">
-        <span class="status-dot" aria-hidden="true"></span>
-        <span id="chat-status-text">Listo</span>
-      </p>
+      <div class="chat-header-left">
+        <h2 id="chat-title">Tutor</h2>
+        <p class="status" id="chat-status" data-state="idle" role="status" aria-live="polite">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="chat-status-text">Listo para tu pregunta</span>
+        </p>
+      </div>
+      <button type="button" class="btn btn-ghost btn-small" id="clear-button"
+              aria-label="Borrar conversación" disabled>
+        🗑 Borrar
+      </button>
     </div>
 
-    <ol class="messages" id="chat-messages" aria-label="Conversación con el tutor"></ol>
+    {# 2. Zona de mensajes #}
+    <ol class="messages" id="chat-messages" role="log" aria-label="Conversación con el tutor"></ol>
 
+    {# 3. Aviso de error con acción de recuperación #}
     <div class="alert alert-error chat-error" id="chat-error" role="alert" hidden>
       <p id="chat-error-text"></p>
-      <button type="button" class="btn btn-ghost btn-small" id="chat-error-action">Reintentar</button>
+      <button type="button" class="btn btn-ghost btn-small" id="chat-error-action" hidden>Reintentar</button>
     </div>
 
-    <button type="button" class="btn btn-ghost btn-small" id="stop-speaking" hidden>
-      ■ Detener lectura
-    </button>
-
+    {# 4. Formulario #}
     <form class="chat-form" id="chat-form" novalidate>
       <label for="question">Tu pregunta</label>
       <textarea id="question" name="question" rows="3" maxlength="1000" required
@@ -44,11 +51,27 @@
         <button type="button" class="btn btn-ghost" id="mic-button" aria-pressed="false">
           <span aria-hidden="true">🎤</span> <span id="mic-label">Hablar</span>
         </button>
+        <button type="button" class="btn btn-ghost" id="stop-speaking" aria-label="Detener lectura en voz alta">
+          ■ Detener lectura
+        </button>
         <button type="submit" class="btn btn-primary" id="send-button">Enviar</button>
       </div>
       <p class="muted mic-hint" id="mic-hint"></p>
     </form>
+
   </section>
 </div>
+
+{# Diálogo de confirmación para borrar la conversación.
+   Sin estilos inline (CSP). El foco inicial va a Cancelar desde app.js. #}
+<dialog id="clear-dialog" aria-labelledby="clear-dialog-title">
+  <h2 id="clear-dialog-title">¿Borrar conversación?</h2>
+  <p>Se borrará tu conversación de esta lección. No se puede deshacer.</p>
+  <div class="dialog-actions">
+    <button type="button" class="btn btn-ghost" id="clear-cancel">Cancelar</button>
+    <button type="button" class="btn btn-danger" id="clear-confirm">Borrar</button>
+  </div>
+</dialog>
+
 {% endblock %}
 {% block scripts %}<script src="/static/app.js" defer></script>{% endblock %}

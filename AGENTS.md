@@ -188,6 +188,7 @@ Todos los tests deben correr sin internet ni API key.
 - La latencia de Gemini varía mucho (en pruebas reales: de 0.7 s a casi 19 s para la misma pregunta). El timeout es configurable (`AI_TIMEOUT_SECONDS`, 30 por defecto) y el frontend debe permitir reintentar.
 - El endpoint de chat mantiene abierta la sesión de base de datos mientras espera a la IA; aceptable para una POC, no para mucha concurrencia.
 - Prompt injection: se mitiga con datos delimitados, etiquetas escapadas e instrucción de sistema, pero no se puede garantizar al 100 %; se verificó con pruebas reales, no es una garantía formal.
+- El borrado de conversación es un **hard delete** iniciado por el alumno (botón "Borrar conversación"). Borra únicamente los mensajes del usuario de sesión en esa lección; los mensajes de otros alumnos y los de otras lecciones no se ven afectados. El historial por lo demás se conserva entre visitas.
 
 ## 14. Cómo quiero que trabajes
 

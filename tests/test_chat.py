@@ -160,3 +160,95 @@ def test_messages_endpoint_returns_only_own_in_order(client, fake_ai, db_session
         ("assistant", fake_ai.answer),
     ]
     assert messages[0]["created_at"].endswith("+00:00")  # UTC explícito para el frontend
+
+
+# ---------------------------------------------------------------------------
+# DELETE /lessons/{lesson_id}/messages
+# ---------------------------------------------------------------------------
+
+DELETE_URL = "/lessons/1/messages"
+
+
+def _seed_messages(db_session, user_email: str, lesson_id: int, count: int = 2) -> None:
+    """Inserta `count` mensajes de usuario para un alumno ya inscrito."""
+    uid = user_id(db_session, user_email)
+    for i in range(count):
+        db_session.add(
+            Message(user_id=uid, lesson_id=lesson_id, role="user", content=f"msg{i}")
+        )
+    db_session.commit()
+
+
+def test_delete_conversation_returns_204_and_clears_history(client, fake_ai, db_session):
+    """Ana borra su conversación: 204 y el historial queda vacío."""
+    login(client, "ana@demo.com")
+    client.post(CHAT_URL, json={"question": "hola"})
+    assert count_messages(db_session) == 2  # pregunta + respuesta
+
+    r = client.delete(DELETE_URL)
+    assert r.status_code == 204
+    assert count_messages(db_session) == 0
+
+
+def test_delete_does_not_affect_other_user_messages(client, fake_ai, db_session):
+    """Borrar la conversación de ana no toca los mensajes de beto en la misma lección."""
+    beto = user_id(db_session, "beto@demo.com")
+    # Inscribir a beto para que pueda tener mensajes en la lección 1.
+    db_session.add(Enrollment(user_id=beto, course_id=1))
+    db_session.commit()
+
+    # Beto tiene 2 mensajes.
+    _seed_messages(db_session, "beto@demo.com", lesson_id=1, count=2)
+    # Ana tiene 2 mensajes (vía chat para respetar el flujo normal).
+    login(client, "ana@demo.com")
+    client.post(CHAT_URL, json={"question": "pregunta de ana"})
+
+    r = client.delete(DELETE_URL)
+    assert r.status_code == 204
+
+    # Solo quedan los mensajes de beto.
+    remaining = db_session.scalars(
+        select(Message.user_id)
+    ).all()
+    assert all(uid == beto for uid in remaining)
+
+
+def test_delete_does_not_affect_messages_in_other_lesson(client, fake_ai, db_session):
+    """Borrar la conversación en lesson 1 no toca los mensajes de ana en lesson 2."""
+    ana = user_id(db_session, "ana@demo.com")
+    db_session.add(Message(user_id=ana, lesson_id=2, role="user", content="en lección 2"))
+    db_session.commit()
+
+    login(client, "ana@demo.com")
+    client.post(CHAT_URL, json={"question": "en lección 1"})
+
+    r = client.delete(DELETE_URL)
+    assert r.status_code == 204
+
+    # El mensaje de lección 2 sigue intacto.
+    remaining = db_session.scalars(select(Message)).all()
+    assert len(remaining) == 1
+    assert remaining[0].lesson_id == 2
+
+
+def test_delete_unenrolled_user_gets_403_and_messages_intact(client, fake_ai, db_session):
+    """Beto sin inscripción recibe 403 y los mensajes de ana siguen intactos."""
+    ana = user_id(db_session, "ana@demo.com")
+    db_session.add(Message(user_id=ana, lesson_id=1, role="user", content="de ana"))
+    db_session.commit()
+
+    login(client, "beto@demo.com")
+    r = client.delete(DELETE_URL)
+    assert r.status_code == 403
+    assert count_messages(db_session) == 1  # el mensaje de ana sigue
+
+
+def test_delete_without_session_returns_401(client, fake_ai):
+    """Sin sesión: 401."""
+    assert client.delete(DELETE_URL).status_code == 401
+
+
+def test_delete_unknown_lesson_returns_404(client, fake_ai):
+    """Lección inexistente: 404."""
+    login(client, "ana@demo.com")
+    assert client.delete("/lessons/999/messages").status_code == 404

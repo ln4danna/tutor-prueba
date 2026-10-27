@@ -139,7 +139,6 @@ h2 { font-size: 1.2rem; }
 .lesson-layout { display: grid; gap: 1.5rem; grid-template-columns: 1fr; }
 @media (min-width: 900px) {
   .lesson-layout { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); align-items: start; }
-  .chat { position: sticky; top: 5rem; }
 }
 /* Texto plano de la lección: respeta saltos de línea sin insertar HTML. */
 .lesson-content { white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -153,6 +152,216 @@ h2 { font-size: 1.2rem; }
 }
 .error-page .btn { margin-top: 1rem; }
 
+/* Ocultar elementos con el atributo HTML hidden: prevalece sobre cualquier display del componente. */
+[hidden] { display: none !important; }
+
+/* Botón pequeño (cabecera del chat, alertas) */
+.btn-small { padding: 0.4rem 0.8rem; min-height: 36px; font-size: 0.875rem; }
+.btn-danger { color: #fff; background: hsl(355 70% 45%); border-color: hsl(355 70% 45%); }
+.btn-danger:hover { background: hsl(355 70% 38%); }
+
+/* ─── Chat del tutor ─── */
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  /* En escritorio: sticky y limitado a la altura de la ventana (menos la topbar). */
+}
+
+@media (min-width: 900px) {
+  .chat { position: sticky; top: 5rem; max-height: calc(100vh - 7rem); }
+}
+
+/* Cabecera: h2 + píldora de estado + botón borrar */
+.chat-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.chat-header-left { display: flex; flex-direction: column; gap: 0.25rem; }
+.chat-header h2 { margin: 0; }
+
+/* Píldora de estado con punto de color */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: hsl(230 22% 20% / 0.7);
+  border: 1px solid var(--surface-border);
+  margin: 0;
+  width: fit-content;
+}
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex-shrink: 0;
+  transition: background 0.3s ease;
+}
+/* Color del punto según estado — siempre acompañado por texto */
+.status[data-state="idle"]         .status-dot { background: var(--muted); }
+.status[data-state="listening"]    .status-dot { background: hsl(145 70% 55%); }
+.status[data-state="transcribing"] .status-dot { background: hsl(50 85% 60%); }
+.status[data-state="thinking"]     .status-dot { background: var(--primary); animation: pulse 1.2s ease-in-out infinite; }
+.status[data-state="speaking"]     .status-dot { background: var(--accent); animation: pulse 1.2s ease-in-out infinite; }
+.status[data-state="error"]        .status-dot { background: var(--danger); }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+
+/* Zona de mensajes */
+.messages {
+  list-style: none;
+  padding: 0.5rem 0;
+  margin: 0;
+  overflow-y: auto;
+  flex: 1 1 0;
+  min-height: 120px;
+  max-height: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  scroll-behavior: smooth;
+}
+
+/* Burbuja vacía */
+.messages-empty {
+  text-align: center;
+  padding: 1.5rem 0;
+  font-size: 0.9rem;
+}
+.messages-empty .empty-example {
+  display: block;
+  margin-top: 0.4rem;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+/* Burbujas de mensaje */
+.message {
+  display: flex;
+  flex-direction: column;
+  max-width: 85%;
+}
+.message--user    { align-self: flex-end;  align-items: flex-end; }
+.message--assistant { align-self: flex-start; align-items: flex-start; }
+
+.message-author {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 0.15rem;
+}
+
+.message-text {
+  margin: 0;
+  padding: 0.55rem 0.85rem;
+  border-radius: 14px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.message--user .message-text {
+  background: hsl(255 60% 30% / 0.55);
+  border: 1px solid hsl(255 60% 45% / 0.4);
+  border-bottom-right-radius: 4px;
+}
+.message--assistant .message-text {
+  background: hsl(172 40% 18% / 0.55);
+  border: 1px solid hsl(172 40% 35% / 0.4);
+  border-bottom-left-radius: 4px;
+}
+
+/* Burbuja "Pensando…" provisional */
+.message--thinking .message-text {
+  background: hsl(230 22% 20% / 0.5);
+  border: 1px dashed var(--surface-border);
+  color: var(--muted);
+  font-style: italic;
+}
+
+.message-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.2rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* Aviso de error */
+.chat-error { margin: 0; }
+.chat-error p { margin: 0 0 0.4rem; }
+
+/* Formulario del chat */
+.chat-form { display: flex; flex-direction: column; gap: 0.5rem; }
+.chat-form label { font-weight: 600; }
+.chat-form textarea {
+  font: inherit;
+  color: var(--text);
+  background: hsl(230 25% 10%);
+  border: 1px solid var(--surface-border);
+  border-radius: 10px;
+  padding: 0.65rem 0.85rem;
+  resize: vertical;
+  min-height: 80px;
+  width: 100%;
+}
+.chat-form textarea:focus-visible { border-color: var(--accent); }
+
+.chat-form-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.chat-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+/* Enviar queda al final empujado por el hueco */
+.chat-actions .btn-primary { margin-left: auto; }
+
+.mic-hint { margin: 0; font-size: 0.82rem; }
+
+/* Mic activo */
+#mic-button.is-listening {
+  border-color: hsl(145 70% 55%);
+  color: hsl(145 70% 55%);
+}
+
+/* ─── Diálogo de confirmación ─── */
+dialog {
+  background: hsl(230 22% 14%);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius);
+  color: var(--text);
+  padding: clamp(1.25rem, 3vw, 2rem);
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 20px 60px hsl(230 40% 3% / 0.7);
+}
+dialog::backdrop {
+  background: hsl(230 25% 5% / 0.7);
+  backdrop-filter: blur(4px);
+}
+dialog h2 { margin: 0 0 0.5rem; font-size: 1.1rem; }
+dialog p  { margin: 0 0 1.25rem; color: var(--muted); }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
+  .messages { scroll-behavior: auto; }
 }
+
