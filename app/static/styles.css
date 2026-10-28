@@ -1,4 +1,3 @@
-/* Tema oscuro, sin fuentes externas (la CSP solo permite 'self'). */
 :root {
   --bg: hsl(230 25% 9%);
   --bg-glow-1: hsl(255 70% 45% / 0.25);

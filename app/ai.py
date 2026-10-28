@@ -1,8 +1,3 @@
-"""Único punto de entrada a la IA: prompt del tutor + llamada a Gemini.
-
-Para cambiar de proveedor (p. ej. Groq) solo hay que reescribir este archivo; el resto de la app
-solo conoce `ask_tutor` y `AIServiceError`.
-"""
 import logging
 import re
 
@@ -12,7 +7,6 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-# La clave va en la cabecera x-goog-api-key, nunca en la URL: así no aparece en logs ni en errores.
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
 NO_INFO_PHRASE = "Esto no está cubierto en esta lección"

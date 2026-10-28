@@ -16,8 +16,6 @@ LOGIN_ERROR = "Email o contraseña incorrectos."
 SESSION_COOKIE = "session"
 _serializer = URLSafeTimedSerializer(settings.secret_key, salt="session")
 
-# Hash ficticio: si el email no existe igual se ejecuta bcrypt, para que el tiempo
-# de respuesta no revele qué cuentas existen.
 _DUMMY_HASH = bcrypt.hashpw(b"dummy-password", bcrypt.gensalt()).decode()
 
 router = APIRouter()
@@ -78,8 +76,8 @@ def login(
         SESSION_COOKIE,
         _serializer.dumps({"uid": user.id}),
         max_age=settings.session_max_age_seconds,
-        httponly=True,  # JS no puede leerla: un XSS no roba la sesión.
-        samesite="lax",  # Mitigación básica de CSRF.
+        httponly=True,  
+        samesite="lax",  
         secure=settings.cookie_secure,
     )
     return response
