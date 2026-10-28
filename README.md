@@ -163,7 +163,7 @@ Se delimitan los datos con etiquetas `<lesson>` y `<question>`, se neutralizan e
 2. Mostrar la lista de cursos → entrar en la Lección 1.
 3. Escribir: **"¿Para qué sirve POST?"** → mostrar la respuesta basada en el material.
 4. Pulsar 🔊 **Escuchar** → el tutor lee la respuesta en voz alta.
-5. Pulsar **Detener** para interrumpir.
+5. Pulsar **Detener lectura** para interrumpir.
 6. Cerrar sesión → volver a entrar → abrir la misma lección → el historial aparece.
 
 ### 2. Flujo sin acceso
@@ -191,3 +191,6 @@ Se delimitan los datos con etiquetas `<lesson>` y `<question>`, se neutralizan e
 2. Enviar una pregunta → el tutor muestra un error claro con botón **Reintentar**.
 3. El texto de la pregunta permanece en el cuadro, listo para reintentar.
 4. Restaurar la conexión o la clave → pulsar **Reintentar** → la respuesta llega.
+
+## 6. Borrar historial del chat
+1. Pulsar **Borrar** para eliminar el historial del chat con el tutor.
