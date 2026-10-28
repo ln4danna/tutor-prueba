@@ -15,6 +15,7 @@ from app.routes import chat, lessons
 from app.templating import templates
 
 SECURITY_HEADERS = {
+    # Solo recursos propios: aunque se colara HTML, un script inline o externo no se ejecutaría.
     "Content-Security-Policy": (
         "default-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'self'"
     ),
@@ -63,6 +64,7 @@ async def not_authenticated_handler(request: Request, _: auth.NotAuthenticated):
 
 @app.exception_handler(StarletteHTTPException)
 async def html_error_handler(request: Request, exc: StarletteHTTPException):
+    # Mismo criterio que el 401: página legible para el navegador, JSON para la API.
     if wants_html(request):
         return templates.TemplateResponse(
             request,

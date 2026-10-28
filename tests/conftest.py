@@ -1,6 +1,7 @@
 """Fixtures compartidos: base SQLite en memoria con el seed, sin internet ni API key."""
 import os
 
+# Debe definirse antes de importar la app (config exige SECRET_KEY).
 os.environ.setdefault("SECRET_KEY", "test-secret")
 os.environ["DATABASE_URL"] = "sqlite://"
 
