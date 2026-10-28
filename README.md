@@ -25,7 +25,7 @@ Edita `.env`:
 ```
 SECRET_KEY=<cadena larga aleatoria, p. ej. la salida de: python -c "import secrets; print(secrets.token_hex(32))">
 AI_API_KEY=<tu API key de Google AI Studio>
-AI_MODEL=gemini-2.0-flash
+AI_MODEL=gemini-3.5-flash-lite
 ```
 
 Las demás variables tienen valores por defecto razonables (ver `.env.example`).
